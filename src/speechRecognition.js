@@ -2,10 +2,10 @@
 // if ('webkitSpeechRecognition' in window) {
 //   recognition = new webkitSpeechRecognition();
 // }
-const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 // const SpeechRecognition = (<any>window).SpeechRecognition || (<any>window).webkitSpeechRecognition;
 
-const recognition: any = new SpeechRecognition();
+const recognition = new SpeechRecognition();
 recognition.continuous = true; // recognition will continue even if the user pauses while speaking
 recognition.interimResults = true;
 recognition.lang = 'en-GB';
@@ -34,7 +34,7 @@ recognition.onstart = function() {
   // start_img.src = 'mic-animate.gif';
 };
 
-recognition.onerror = function(event: SpeechRecognitionErrorEvent) {
+recognition.onerror = function(event) {
   console.log('recognition.onerror(event)', event);
 
   if (event.error === 'no-speech') {
@@ -82,7 +82,7 @@ recognition.onend = function() {
   // }
 };
 
-recognition.onresult = function(event: SpeechRecognitionEvent) {
+recognition.onresult = function(event) {
   console.log('recognition.onresult(event)', event);
 
   let interimTranscript = '';
