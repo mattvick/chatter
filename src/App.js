@@ -1,140 +1,122 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { useSpeechRecognition } from '@mattvick/react-speech-kit';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMicrophone } from '@fortawesome/free-solid-svg-icons';
 
 import './App.scss';
 
-// const recognition = new webkitSpeechRecognition() || new SpeechRecognition();
-const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-const recognition = new SpeechRecognition();
-recognition.continuous = true; // recognition will continue even if the user pauses while speaking
-recognition.interimResults = true;
-recognition.lang = 'en-GB';
+const languageOptions = [
+  { label: 'Cambodian', value: 'km-KH' },
+  { label: 'Deutsch', value: 'de-DE' },
+  { label: 'English (UK)', value: 'en-GB' },
+  { label: 'English (US)', value: 'en-US' },
+  { label: 'English (AU)', value: 'en-AU' },
+  { label: 'Farsi', value: 'fa-IR' },
+  { label: 'Français', value: 'fr-FR' },
+  { label: 'Italiano', value: 'it-IT' },
+  { label: '普通话 (中国大陆) - Mandarin', value: 'zh' },
+  { label: 'Portuguese', value: 'pt-BR' },
+  { label: 'Español', value: 'es-MX' },
+  { label: 'Svenska - Swedish', value: 'sv-SE' },
+];
 
-function App() {
-  const [interim, setInterim] = React.useState('');
-  const [final, setFinal] = React.useState('');
-  const handleOnstart = () => {
-    console.log('recognition.onstart()');
-  };
-  const handleOnerror = (event) => {
-    console.log('recognition.onerror(event)', event);
-    if (event.error === 'no-speech') {}
-    if (event.error === 'audio-capture') {}
-    if (event.error === 'not-allowed') {}
-  };
-  const handleOnend = () => {
-    console.log('recognition.onend()');
-  };
-  const handleOnresult = (event) => {
-    console.log('recognition.onresult(event)', event);
+const App = () => {
+  const [lang, setLang] = useState('en-GB');
+  const [final, setFinal] = useState('');
+  const [interim, setInterim] = useState('');
+  const [blocked, setBlocked] = useState(false);
+
+  const onEnd = () => {
+    setFinal(prevState => `${prevState}${interim} `);
     setInterim('');
-    console.log('event.results.length', event.results.length);
-    for (var i = event.resultIndex; i < event.results.length; ++i) {
-      console.log('interim', interim);
-      console.log('final', final);
-      console.log('event.results[i].length', event.results[i].length);
-      console.log('event.results[i][0].transcript', event.results[i][0].transcript);
-      if (event.results[i].length > 1) {
-        console.log('event.results[i][1].transcript', event.results[i][1].transcript);
-      }
-      if (event.results[i].isFinal) {
-        setFinal(`${final}${event.results[i][0].transcript}`);
-      } else {
-        setInterim(`${interim}${event.results[i][0].transcript}`);
-      }
+  };
+
+  const onResult = (_, finalTranscript, interimTranscript) => {
+    setInterim(interimTranscript);
+    setFinal(prevState => `${prevState}${finalTranscript}`);
+  };
+
+  const changeLang = (event) => {
+    setLang(event.target.value);
+  };
+
+  const onError = (event) => {
+    if (event.error === 'not-allowed') {
+      setBlocked(true);
     }
   };
-  React.useEffect(() => {
-    recognition.onstart = handleOnstart;
-    recognition.onerror = handleOnerror;
-    recognition.onend = handleOnend;
-    recognition.onresult = handleOnresult;
-    // recognition.addEventListener('onstart', handleOnstart);
-    // recognition.addEventListener('onerror', handleOnerror);
-    // recognition.addEventListener('onend', handleOnend);
-    // recognition.addEventListener('onresult', handleOnresult);
-    return () => {
-      recognition.onstart = () => {};
-      recognition.onerror = () => {};
-      recognition.onend = () => {};
-      recognition.onresult = () => {};
-      // recognition.removeEventListener('onstart', handleOnstart);
-      // recognition.removeEventListener('onerror', handleOnerror);
-      // recognition.removeEventListener('onend', handleOnend);
-      // recognition.removeEventListener('onresult', handleOnresult);
-    };
-  }, []);
+
+  const { listen, listening, stop, supported } = useSpeechRecognition({
+    onResult,
+    onEnd,
+    onError,
+  });
+
+  const toggle = listening
+    ? stop
+    : () => {
+        setBlocked(false);
+        listen({
+          continuous: true,
+          nonStop: false,
+          lang,
+        });
+      };
+
   return (
-    <div className="App">
-      <div>
-        {final && <span className="App-final">{final}</span>}{' '}
-        {interim && <span className="App-interim">{interim}</span>}
+    <div className="App container">
+      <div class="row justify-content-md-center">
+        <div class="col-sm">
+          <form id="speech-recognition-form">
+            <h2>Speech Recognition</h2>
+            {!supported && (
+              <p>
+                Oh no, it looks like your browser doesn&#39;t support Speech
+                Recognition.
+              </p>
+            )}
+            {supported && (
+              <React.Fragment>
+                <p>
+                  {`Click 'Listen' and start speaking.
+                  Speech recognition will generate a transcript of what you say.`}
+                </p>
+                <select
+                  form="speech-recognition-form"
+                  id="lang"
+                  value={lang}
+                  onChange={changeLang}
+                >
+                  {languageOptions.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+                <div className="transcript">
+                  {final && <span className="final">{final}</span>}
+                  {interim && <span className="interim">{interim}</span>}
+                </div>
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  disabled={blocked}
+                  onClick={toggle}
+                >
+                  {listening ? 'Stop' : (<React.Fragment>Listen <FontAwesomeIcon icon={faMicrophone} /></React.Fragment>)}
+                </button>
+                {blocked && (
+                  <p style={{ color: 'red' }}>
+                    The microphone is blocked for this site in your browser.
+                  </p>
+                )}
+              </React.Fragment>
+            )}
+          </form>
+        </div>
       </div>
-      <button type="button" className="btn btn-primary"
-        onClick={() => {
-          console.log('onClick()');
-        }}
-        onContextMenu={() => {
-          console.log('onContextMenu()');
-        }}
-        onDoubleClick={() => {
-          console.log('onDoubleClick()');
-        }}
-        onDrag={() => {
-          console.log('onDrag()');
-        }}
-        onDragEnd={() => {
-          console.log('onDragEnd()');
-        }}
-        onDragEnter={() => {
-          console.log('onDragEnter()');
-        }}
-        onDragExit={() => {
-          console.log('onDragExit()');
-        }}
-        onDragLeave={() => {
-          console.log('onDragLeave()');
-          recognition.stop();
-        }}
-        onDragOver={() => {
-          console.log('onDragOver()');
-        }}
-        onDragStart={() => {
-          console.log('onDragStart()');
-        }}
-        onDrop={() => {
-          console.log('onDrop()');
-        }}
-        onMouseDown={() => {
-          console.log('onMouseDown()');
-          recognition.stop();
-          recognition.start();
-        }}
-        onMouseEnter={() => {
-          console.log('onMouseEnter()');
-        }}
-        onMouseLeave={() => {
-          console.log('onMouseLeave()');
-        }}
-        onMouseMove={() => {
-          console.log('onMouseMove()');
-        }}
-        onMouseOut={() => {
-          console.log('onMouseOut()');
-        }}
-        onMouseOver={() => {
-          console.log('onMouseOver()');
-        }}
-        onMouseUp={() => {
-          console.log('onMouseUp()');
-          recognition.stop();
-        }}
-      >
-        Hold to speak <FontAwesomeIcon icon={faMicrophone} />
-      </button>
     </div>
   );
-}
+};
 
 export default App;
