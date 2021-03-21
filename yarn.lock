@@ -1422,10 +1422,10 @@
     "@types/yargs" "^15.0.0"
     chalk "^4.0.0"
 
-"@mattvick/react-speech-kit@3.0.6":
-  version "3.0.6"
-  resolved "https://npm.pkg.github.com/download/@mattvick/react-speech-kit/3.0.6/9e4b7360061055aa30a272afeb0dbe518d1c2aaee3187091242349c64a68cb46#ea738ccac4341e67e8aafab9732bdd48275dc0e3"
-  integrity sha512-fkgk0GcmOQ75RpJ9N0S+8bo/DyP/P/c04kCwHWo/Dswb8J9RKe2FeVAPLcSmOWSY2Q/4GBlD0f5DOeqOnj1SZA==
+"@mattvick/react-speech-kit@3.0.7":
+  version "3.0.7"
+  resolved "https://npm.pkg.github.com/download/@mattvick/react-speech-kit/3.0.7/a148a211459617a5a4d3d772984c70e838de43a20e491bbffd1f78c1a0e43d1a#a19a61fb534208197d3a3c9a8b47a853a0f01018"
+  integrity sha512-QfFg34sJdctvz0jw3OzbS1Q1FG45LXp/exAJEwDz1p1g1yRl2/8yopZlSDGFhCAksfuN/dXBYG/XOIeGWLuZ/w==
 
 "@nodelib/fs.scandir@2.1.4":
   version "2.1.4"
