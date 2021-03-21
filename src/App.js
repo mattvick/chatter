@@ -65,8 +65,8 @@ const App = () => {
 
   return (
     <div className="App container">
-      <div class="row justify-content-md-center">
-        <div class="col-sm">
+      <div className="row justify-content-md-center">
+        <div className="col-sm">
           <form id="speech-recognition-form">
             <h2>Speech Recognition</h2>
             {!supported && (
@@ -81,18 +81,21 @@ const App = () => {
                   {`Click 'Listen' and start speaking.
                   Speech recognition will generate a transcript of what you say.`}
                 </p>
-                <select
-                  form="speech-recognition-form"
-                  id="lang"
-                  value={lang}
-                  onChange={changeLang}
-                >
-                  {languageOptions.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
+                <div className="form-group">
+                  <select
+                    form="speech-recognition-form"
+                    id="lang"
+                    className="form-control custom-select"
+                    value={lang}
+                    onChange={changeLang}
+                  >
+                    {languageOptions.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
                 <div className="transcript">
                   {final && <span className="final">{final}</span>}
                   {interim && <span className="interim">{interim}</span>}
